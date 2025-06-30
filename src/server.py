@@ -121,9 +121,9 @@ def obfuscate_code_with_llm(code: str) -> str:
         print("Warning: LLM URL or API Key not configured. Returning original code.")
         return code
 
-    prompt = f"""You are a code obfuscator. You are given a piece of source code.
+    prompt = f"""You are a code refactorer. You are given a piece of source code.
 Your task is to modify the code by changing the names of all variables, functions, and classes
-to meaningless or random names. The logic, inputs, and outputs of the code must remain exactly the same.
+to different names. The logic, inputs, and outputs of the code must remain exactly the same.
 Do not add, remove, or change any other part of the code.
 
 Original Code:
@@ -132,6 +132,7 @@ Original Code:
 ---
 
 Return only the modified code.
+/no_think
 """
     # Generate a random seed for this request
     seed = random.randint(0, 2**31-1)
@@ -149,7 +150,7 @@ Return only the modified code.
     }
 
     try:
-        response = requests.post(LLM_URL, headers=headers, json=data, timeout=30)
+        response = requests.post(LLM_URL, headers=headers, json=data, timeout=600)
         response.raise_for_status()
         llm_response = response.json()
         modified_code = llm_response['choices'][0]['message']['content'].strip()
