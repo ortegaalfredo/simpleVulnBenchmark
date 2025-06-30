@@ -1,33 +1,3 @@
-# simpleVulnBenchmark: Vulnerability Benchmarking Utility
-
-## Overview
-A FastAPI-based tool to benchmark vulnerability detection systems using LLM-assisted validation. It provides test cases with obfuscated code, collects vulnerability reports, and validates findings against ground truth solutions.
-
-## Setup
-1. Install dependencies:
-```bash
-pip install -i requirements.txt
-```
-Run the server:
-
-```bash
-    python main.py --url [LLM_API_ENDPOINT] --api-key [YOUR_API_KEY]
-```
-
-Example:
-
-```bash
-    python main.py --url https://api.openai.com/v1/chat/completions --api-key sk-xxxx
-```
-
-Client example:
-
-To automatically benchmark your agent, you must request testcases and send detected vulnerabilities to the benchmark.
-This is an example client, you should choose a custom user_id for identification, and use the send_vulns() function to send your agents found testcase vulnerabilities.
-The benchmark server.py will then return the score and also generate a HTML page with a ranking graph and a list of all tests made so far:
-
-
-```python
 from client import start_session, get_test_case, send_vulns, finish_benchmark
 
 BASE_URL = "http://www.neuroengine.ai:58000"
@@ -60,5 +30,3 @@ def main():
 
 if __name__ == "__main__":
     main() 
-```
-
