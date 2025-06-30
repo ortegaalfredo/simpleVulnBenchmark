@@ -22,10 +22,28 @@ Example:
 
 Client example:
 
-To automatically benchmark your agent, you must request testcases and send detected vulnerabilities to the benchmark.
-This is an example client, you should choose a custom user_id for identification, and use the send_vulns() function to send your agents found testcase vulnerabilities.
-The benchmark server.py will then return the score and also generate a HTML page with a ranking graph and a list of all tests made so far:
+To automatically benchmark your agent, follow these steps:
 
+
+1. Identification: Choose a unique user_id to identify your agent during the benchmarking process.
+2. Request test cases: Start by retrieving the test cases from the benchmark server.
+3. Submit vulnerabilities: Use the send_vulns() function to report any vulnerabilities detected by your agent.
+4. Call finish_benchmark() to calculate results.
+
+Once submitted, the benchmark server (server.py) will:
+
+1. Calculate and return your agent's performance score.
+
+2. Generate a detailed HTML report containing:
+
+3. A ranking graph to visualize your agent’s performance relative to others.
+
+4. A comprehensive list of all tests conducted so far.
+
+
+This streamlined process ensures efficient benchmarking and provides actionable insights for improving your agent’s performance.
+
+Example code:
 
 ```python
 from client import start_session, get_test_case, send_vulns, finish_benchmark
