@@ -27,6 +27,9 @@ def start_benchmark(user_id: str):
     test_cases = []
     for filename in os.listdir(TEST_CASE_DIR):
         if not filename.endswith(".solution"):
+            # Repeat each test-case 3 times.
+            test_cases.append(filename)
+            test_cases.append(filename)
             test_cases.append(filename)
     test_cases.sort()
     sessions[session_id] = {
