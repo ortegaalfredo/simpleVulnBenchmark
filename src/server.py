@@ -84,8 +84,6 @@ True Vulnerability Description (Solution):
 ---
 
 Does the "Reported Vulnerability" accurately and uniquely describe the issue explained in the "True Vulnerability Description" for the given "Code"? Answer with only "yes" or "no". 
-/no_think
-
 """
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -94,12 +92,12 @@ Does the "Reported Vulnerability" accurately and uniquely describe the issue exp
     data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 10,
+        "max_tokens": 8192,
         "temperature": 0.8
     }
 
     try:
-        response = requests.post(LLM_URL, headers=headers, json=data, timeout=10)
+        response = requests.post(LLM_URL, headers=headers, json=data, timeout=600)
         response.raise_for_status()
         llm_response = response.json()
         raw_content = llm_response['choices'][0]['message']['content'].strip()
