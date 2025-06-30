@@ -6,7 +6,7 @@ A FastAPI-based tool to benchmark vulnerability detection systems using LLM-assi
 ## Setup
 1. Install dependencies:
 ```bash
-pip install fastapi uvicorn requests
+pip install -i requirements.txt
 ```
 Run the server:
 
