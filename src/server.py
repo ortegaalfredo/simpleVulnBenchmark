@@ -174,6 +174,10 @@ def send_vulns(session_id: str, testcase_id: str, vulns: List[str]):
     session = sessions.get(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
+    # Security: Prevent path traversal and only allow known test cases
+    if (".." in testcase_id or "/" in testcase_id or "\\" in testcase_id or
+        testcase_id not in session["test_cases"]):
+        raise HTTPException(status_code=400, detail="Invalid testcase_id")
     if "vulns" not in session:
         session["vulns"] = {}
     session["vulns"][testcase_id] = vulns
