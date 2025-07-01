@@ -17,6 +17,7 @@ def main():
         
         test_case, testcase_id = test_case_data
         print(f"Received test case '{testcase_id}' ({len(test_case)} bytes)")
+        print(test_case)
 
         # TODO: Implement your vulnerability detection logic here
         # For example, you could analyze the `test_case` content

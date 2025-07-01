@@ -29,8 +29,6 @@ def start_benchmark(user_id: str):
         if not filename.endswith(".solution"):
             # Repeat each test-case 3 times.
             test_cases.append(filename)
-            test_cases.append(filename)
-            test_cases.append(filename)
     test_cases.sort()
     sessions[session_id] = {
         "user_id": user_id,
@@ -167,9 +165,9 @@ Return only the modified code.
         return code  # Return original code on error
 
 @app.post("/sendVulns/{session_id}/{testcase_id}")
-def send_vulns(session_id: str, testcase_id: str, vulns: List[str]):
+def send_vulns(session_id: str, testcase_id: str, vuln: str):
     """
-    testcase_id is the test case file name.
+    testcase_id is the test case file name. vuln is a single vulnerability string.
     """
     session = sessions.get(session_id)
     if not session:
@@ -180,8 +178,10 @@ def send_vulns(session_id: str, testcase_id: str, vulns: List[str]):
         raise HTTPException(status_code=400, detail="Invalid testcase_id")
     if "vulns" not in session:
         session["vulns"] = {}
-    session["vulns"][testcase_id] = vulns
-    print(f"Received {len(vulns)} vulns for {testcase_id}")
+    if testcase_id not in session["vulns"]:
+        session["vulns"][testcase_id] = []
+    session["vulns"][testcase_id].append(vuln)
+    print(f"Received vuln for {testcase_id}: {vuln}")
     print("Checking if vuln is found...")
     test_case_path = os.path.join(TEST_CASE_DIR, testcase_id)
     test_case_solution_path = os.path.join(TEST_CASE_DIR, testcase_id)+".solution"
@@ -193,14 +193,13 @@ def send_vulns(session_id: str, testcase_id: str, vulns: List[str]):
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Test case or solution not found for {testcase_id}")
     
-    for vuln in vulns:
-        is_correct = check_vuln_with_llm(vuln, test_case_content, test_case_solution_content)
-        if is_correct:
-            session["positive"] += 1
-            print("Vuln matched solution. Score: +1 positive")
-        else:
-            session["false_positive"] += 1
-            print("Vuln did not match solution. Score: +1 false_positive")
+    is_correct = check_vuln_with_llm(vuln, test_case_content, test_case_solution_content)
+    if is_correct:
+        session["positive"] += 1
+        print("Vuln matched solution. Score: +1 positive")
+    else:
+        session["false_positive"] += 1
+        print("Vuln did not match solution. Score: +1 false_positive")
 
     return {"status": "success"}
 

@@ -24,10 +24,11 @@ def get_test_case(base_url: str, session_id: str) -> Optional[Tuple[str, str]]:
     return data["testCase"], data["testCaseID"]
 
 def send_vulns(base_url: str, session_id: str, testcase_id: str, vulns: List[str]) -> None:
-    """Sends a list of found vulnerabilities for a specific test case."""
+    """Sends a list of found vulnerabilities for a specific test case, one by one."""
     url = f"{base_url}/sendVulns/{session_id}/{testcase_id}"
-    response = requests.post(url, json=vulns)
-    response.raise_for_status()
+    for vuln in vulns:
+        response = requests.post(url, params={"vuln": vuln})
+        response.raise_for_status()
 
 def finish_benchmark(base_url: str, session_id: str) -> dict:
     """Finishes the benchmark session and gets the results."""
