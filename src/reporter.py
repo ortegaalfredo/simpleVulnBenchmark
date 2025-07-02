@@ -33,9 +33,9 @@ def generate_html_report(test_case_dir: str):
     # Add percentage to the Positive column
     def positive_with_percent(row):
         percent = 100 * row['positive'] / total_test_cases
-        return f"({percent:.0f}%)"
-    data["Critical found"] = data["positive"].apply(lambda x: int(x))  # Ensure integer
-    data["Critical found"] = data.apply(positive_with_percent, axis=1)
+        return f"{row['positive']}/{total_test_cases} ({percent:.0f}%)"
+    data["Performance"] = data["positive"].apply(lambda x: int(x))  # Ensure integer
+    data["Performance"] = data.apply(positive_with_percent, axis=1)
 
     # 1. Generate the 2D graph and encode it for HTML
     fig, ax = plt.subplots(figsize=(8, 8), dpi=100)
@@ -48,18 +48,40 @@ def generate_html_report(test_case_dir: str):
             xytext=(5, 5), textcoords='offset points'
         )
 
-    ax.set_xlabel("Positive")
-    ax.set_ylabel("False Positive")
+    ax.set_xlabel("Positive (more is better)")
+    ax.set_ylabel("False Positive (less is better)")
     ax.set_title("Benchmark Results: Positive vs. False Positive")
     ax.grid(True)
 
-    # Save plot to a memory buffer
+    # Save scatter plot to a memory buffer
     img_buffer = io.BytesIO()
     plt.savefig(img_buffer, format='png', bbox_inches='tight')
     img_buffer.seek(0)
-    # Encode buffer to base64
     img_base64 = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
     plt.close(fig)
+
+    # 1b. Generate a bar graph for elapsed time
+    fig2, ax2 = plt.subplots(figsize=(8, 4), dpi=100)
+    bars = ax2.bar(data["user_id"], data["elapsed_time"], color="#007bff")
+    ax2.set_xlabel("User ID")
+    ax2.set_ylabel("Elapsed Time (s)")
+    ax2.set_title("Elapsed Time per Benchmark Run")
+    ax2.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.xticks(rotation=45, ha='right')
+    # Add value labels on top of bars
+    for bar in bars:
+        height = bar.get_height()
+        ax2.annotate(f'{height:.1f}',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom', fontsize=8)
+    img_buffer2 = io.BytesIO()
+    plt.tight_layout()
+    plt.savefig(img_buffer2, format='png', bbox_inches='tight')
+    img_buffer2.seek(0)
+    img_base64_time = base64.b64encode(img_buffer2.getvalue()).decode('utf-8')
+    plt.close(fig2)
 
     # 2. Prepare data for the HTML table
     data["date"] = pd.to_datetime(data["timestamp"], unit='s').dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -124,6 +146,8 @@ def generate_html_report(test_case_dir: str):
             <h1>Benchmark Report</h1>
             <h2>Results Graph</h2>
             <img src="data:image/png;base64,{img_base64}" alt="Benchmark Results Graph">
+            <h2>Elapsed Time per Benchmark Run</h2>
+            <img src="data:image/png;base64,{img_base64_time}" alt="Elapsed Time Bar Graph">
             <h2>Results Table</h2>
             {html_table}
             <footer>
