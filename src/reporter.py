@@ -3,11 +3,12 @@ import pandas as pd
 from datetime import datetime
 import io
 import base64
+import os
 
-def generate_html_report():
+def generate_html_report(test_case_dir: str):
     """
     Reads results.txt and generates a self-contained HTML report
-    with a graph and a formatted table.
+    with a graph and a formatted table. The Positive column shows both the count and the percentage of total test cases.
     """
     try:
         # Read the data from results.txt
@@ -22,6 +23,19 @@ def generate_html_report():
     except pd.errors.EmptyDataError:
         print("Error: results.txt is empty. No data to generate a report.")
         return
+
+    # Count the number of test case files in the directory (excluding .solution files)
+    test_case_files = [f for f in os.listdir(test_case_dir) if os.path.isfile(os.path.join(test_case_dir, f)) and not f.endswith('.solution')]
+    total_test_cases = len(test_case_files)
+    if total_test_cases == 0:
+        total_test_cases = 1  # Avoid division by zero
+
+    # Add percentage to the Positive column
+    def positive_with_percent(row):
+        percent = 100 * row['positive'] / total_test_cases
+        return f"({percent:.0f}%)"
+    data["Critical found"] = data["positive"].apply(lambda x: int(x))  # Ensure integer
+    data["Critical found"] = data.apply(positive_with_percent, axis=1)
 
     # 1. Generate the 2D graph and encode it for HTML
     fig, ax = plt.subplots(figsize=(8, 8), dpi=100)
@@ -54,7 +68,7 @@ def generate_html_report():
     data.rename(columns={
         "date": "Date",
         "user_id": "User ID",
-        "positive": "Positive",
+        # "positive": "Positive",  # Already replaced
         "false_positive": "False Positive",
         "elapsed_time": "Elapsed Time (s)"
     }, inplace=True)
@@ -114,6 +128,7 @@ def generate_html_report():
             {html_table}
             <footer>
                 <p>Report generated on {report_generation_time}</p>
+                <p><a href=https://github.com/ortegaalfredo/simpleVulnBenchmark>https://github.com/ortegaalfredo/simpleVulnBenchmark</a></p>
             </footer>
         </div>
     </body>
@@ -127,4 +142,7 @@ def generate_html_report():
     print("HTML report saved as report.html")
 
 if __name__ == "__main__":
-    generate_html_report() 
+    # Example usage: pass the test case directory as an argument
+    import sys
+    test_case_dir = sys.argv[1] if len(sys.argv) > 1 else "testcases/vulnerable"
+    generate_html_report(test_case_dir) 

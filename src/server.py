@@ -59,7 +59,7 @@ def get_test_case(session_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read test case: {e}")
     test_case_id = test_case
-    test_case_content = obfuscate_code_with_llm(test_case_content)
+    #test_case_content = obfuscate_code_with_llm(test_case_content)
     return {"testCase": test_case_content, "testCaseID": test_case_id}
 
 def check_vuln_with_llm(vuln: str, code: str, solution: str) -> bool:
@@ -85,6 +85,7 @@ True Vulnerability Description (Solution):
 ---
 
 Does the "Reported Vulnerability" accurately and uniquely describe the issue explained in the "True Vulnerability Description" for the given "Code"? Answer with only "yes" or "no". 
+/no_think
 """
     headers = {
         "Authorization": f"Bearer {API_KEY}",
