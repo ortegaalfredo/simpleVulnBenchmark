@@ -32,10 +32,12 @@ def generate_html_report(test_case_dir: str):
 
     # Add percentage to the Positive column
     def positive_with_percent(row):
+        if total_test_cases <= 0 or row['positive'] == 0:
+            return f"{row['positive']} (0%)"
         percent = 100 * row['positive'] / total_test_cases
-        return f"{row['positive']}/{total_test_cases} ({percent:.0f}%)"
-    data["Performance"] = data["positive"].apply(lambda x: int(x))  # Ensure integer
-    data["Performance"] = data.apply(positive_with_percent, axis=1)
+        return f"{row['positive']} ({percent:.0f}%)"
+    data["Positive"] = data["positive"].apply(lambda x: int(x))  # Ensure integer
+    data["Positive"] = data.apply(positive_with_percent, axis=1)
 
     # 1. Generate the 2D graph and encode it for HTML
     fig, ax = plt.subplots(figsize=(8, 8), dpi=100)
