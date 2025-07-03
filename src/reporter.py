@@ -97,6 +97,12 @@ def generate_html_report(test_case_dir: str):
         "elapsed_time": "Elapsed Time (s)"
     }, inplace=True)
     
+    # Remove 'timestamp' and the original 'positive' columns from the table
+    if 'timestamp' in data.columns:
+        data = data.drop(columns=['timestamp'])
+    if 'positive' in data.columns:
+        data = data.drop(columns=['positive'])
+
     # Generate HTML table from DataFrame
     html_table = data.to_html(index=False, classes='results-table', border=0)
 

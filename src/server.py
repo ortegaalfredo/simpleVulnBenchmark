@@ -59,7 +59,8 @@ def get_test_case(session_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read test case: {e}")
     test_case_id = test_case
-    #test_case_content = obfuscate_code_with_llm(test_case_content)
+    # Skip obfuscation
+    # test_case_content = obfuscate_code_with_llm(test_case_content)
     return {"testCase": test_case_content, "testCaseID": test_case_id}
 
 def check_vuln_with_llm(vuln: str, code: str, solution: str) -> bool:
@@ -194,10 +195,18 @@ def send_vulns(session_id: str, testcase_id: str, vuln: str):
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Test case or solution not found for {testcase_id}")
     
+    # Track if this testcase_id has already received a positive score
+    if "positive_awarded" not in session:
+        session["positive_awarded"] = set()
+
     is_correct = check_vuln_with_llm(vuln, test_case_content, test_case_solution_content)
     if is_correct:
-        session["positive"] += 1
-        print("Vuln matched solution. Score: +1 positive")
+        if testcase_id not in session["positive_awarded"]:
+            session["positive"] += 1
+            session["positive_awarded"].add(testcase_id)
+            print("Vuln matched solution. Score: +1 positive")
+        else:
+            print("Vuln matched solution, but positive already awarded for this test case.")
     else:
         session["false_positive"] += 1
         print("Vuln did not match solution. Score: +1 false_positive")
@@ -217,7 +226,7 @@ def finish_benchmark(session_id: str):
     with open("results.txt", "a") as f:
         f.write(result_line)
 
-    generate_html_report()
+    generate_html_report(TEST_CASE_DIR)
 
     return {
         "correct": session["positive"], 
