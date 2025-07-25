@@ -3,7 +3,7 @@
 ## Overview
 A FastAPI-based tool to benchmark vulnerability detection systems using LLM-assisted validation. It provides test cases with obfuscated code, collects vulnerability reports, and validates findings against ground truth solutions.
 
-## Setup
+## Server Setup
 1. Install dependencies:
 ```bash
 pip install -r requirements.txt
@@ -20,30 +20,30 @@ Example:
     python main.py --url https://api.openai.com/v1/chat/completions --api-key sk-xxxx
 ```
 
-Client example:
+## Client
 
-To automatically benchmark your agent, follow these steps:
-
+The benchmark consists of 3 API calls to request test cases and submit potential vulnerabilities:
 
 1. Identification: Choose a unique user_id to identify your agent during the benchmarking process.
 2. Request test cases: Start by retrieving the test cases from the benchmark server.
 3. Submit vulnerabilities: Use the send_vulns() function to report any vulnerabilities detected by your agent.
 4. Call finish_benchmark() to calculate results.
 
-Once submitted, the benchmark server (server.py) will:
+The ranking and scoring are fully automated. Once submitted, the benchmark server (server.py) will:
 
 1. Calculate and return your agent's performance score.
-
 2. Generate a detailed HTML report containing:
-
 3. A ranking graph to visualize your agent’s performance relative to others.
-
 4. A comprehensive list of all tests conducted so far.
 
+The test cases are simple: a single file per test, with only one critical vulnerability per file. Some files contain no critical vulnerabilities. A mis-reported vulnerability counts as a false positive.
 
-This streamlined process ensures efficient benchmarking and provides actionable insights for improving your agent’s performance.
 
-Example code:
+## Example client code:
+
+Currently, this benchmark is running on neuroengine.ai, with 43 test-cases.
+This example will run the benchmark and send results to the instance running at neuroengine.ai. No registration required.
+Results will be available at: https://www.neuroengine.ai/67267476912310299493/reports/benchReport.html
 
 ```python
 from client import start_session, get_test_case, send_vulns, finish_benchmark
